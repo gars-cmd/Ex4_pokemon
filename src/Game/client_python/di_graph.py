@@ -1,8 +1,7 @@
 from typing import Dict
-from Graph.GraphInterface import GraphInterface
-from Graph.node_class import Nodes
+from src.Game.client_python.GraphInterface import GraphInterface
+from src.Game.client_python.node_class import Nodes
 import random
-import __future__
 
 
 class DiGraph(GraphInterface):

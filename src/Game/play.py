@@ -3,12 +3,12 @@ from typing import Dict, List, Tuple
 import sys
 import math
 from pygame import math
-from Graph.di_graph import DiGraph
-from Graph.graph_algo import GraphAlgo
-from poke_node import PokeNode
-from poke_trainer import PokeTrainer
+from src.Game.client_python.di_graph import DiGraph
+from src.Game.client_python.graph_algo import GraphAlgo
+from src.Game.poke_node import PokeNode
+from src.Game.poke_trainer import PokeTrainer
 import random
-from src.Game.Graph.node_class import Nodes
+from src.Game.client_python.node_class import Nodes
 from src.Game.game_boy import GameBoy
 
 

@@ -1,14 +1,16 @@
-import sys
-from typing import Dict, List, Tuple
-from src.Game.Graph.GraphAlgoInterface import GraphAlgoInterface
-from src.Game.Graph.GraphInterface import GraphInterface
-from src.Game.Graph.di_graph import DiGraph
-from src.Game.Graph.node_class import Nodes
+from typing import List, Tuple
+
+# from src.Game.client_python import gui_graph
+import GraphInterface
+import GraphAlgoInterface
+from src.Game.client_python.di_graph import DiGraph
+# from src.Game.client_python.node_class import Nodes
 import json
-from src.Game.Graph import gui_graph
+from src.Game.client_python import gui_graph
+from src.Game.client_python.node_class import Nodes
 
 
-class GraphAlgo(GraphAlgoInterface):
+class GraphAlgo():
     
     # constructor
     def __init__(self,graph:DiGraph=None) -> None:
@@ -224,7 +226,7 @@ class GraphAlgo(GraphAlgoInterface):
             reverse_NodesMap[key] = Nodes(key,nodes.pos)
             reverse_NodesMap[key].me_to_other = self.get_graph().NodesMap[key].other_to_me
             reverse_NodesMap[key].other_to_me = self.get_graph().NodesMap[key].me_to_other
-        
+
         reverseGRaph = DiGraph()
         reverseGRaph.NodesMap = reverse_NodesMap
 

@@ -9,7 +9,10 @@ import json
 from pygame import gfxdraw
 import pygame
 from pygame import *
-
+import graph_algo
+from src.Game.play import Play
+from di_graph import DiGraph
+from src import *
 # init pygame
 WIDTH, HEIGHT = 1080, 720
 
@@ -35,7 +38,13 @@ graph_json = client.get_graph()
 
 FONT = pygame.font.SysFont('Arial', 20, bold=True)
 # load the json string into SimpleNamespace Object
+# add song
+# mixer.music.load("src/Game/media/song.wav")
+# mixer.music.play()
 
+
+# add background
+# background = pygame.image.load("src/Game/media/safari_zone.gif")
 graph = json.loads(
     graph_json, object_hook=lambda json_dict: SimpleNamespace(**json_dict))
 
@@ -76,6 +85,22 @@ client.add_agent("{\"id\":0}")
 
 # this commnad starts the server - the game is running now
 client.start()
+def OnEdge(src:(float,float),dest:(float,float),x1_y1:(float,float,float)):
+    print(src ,dest, x1_y1)
+    src[0] = my_scale(src[0], x=True)
+    src[1] = my_scale(src[1], y=True)
+    dest[0] = my_scale(dest[0], x=True)
+    dest[1] = my_scale(dest[1], y=True)
+    m=(src[1]-dest[1])/(src[0]-dest[0])
+    print(src ,dest, x1_y1)
+    n=src[1]-m*src[0]
+    eps=0.00000001
+    if(x1_y1[1]-eps<m*x1_y1[0]+n or m*x1_y1[0]+n<x1_y1[0]+eps ):
+
+        return 1
+    return 0
+
+
 
 """
 The code below should be improved significantly:
@@ -139,6 +164,7 @@ while client.is_running() == 'true':
                          (src_x, src_y), (dest_x, dest_y))
 
     # draw agents
+
     for agent in agents:
         pygame.draw.circle(screen, Color(122, 61, 23),
                            (int(agent.pos.x), int(agent.pos.y)), 10)
@@ -151,15 +177,39 @@ while client.is_running() == 'true':
 
     # refresh rate
     clock.tick(60)
+    g1=DiGraph()
+    g = graph_algo.GraphAlgo("")
+    g.load_from_json(client.get_graph())
+    game = Play()
+
 
     # choose next edge
     for agent in agents:
         if agent.dest == -1:
-            next_node = (agent.src - 1) % len(graph.Nodes)
-            client.choose_next_edge(
-                '{"agent_id":'+str(agent.id)+', "next_node_id":'+str(next_node)+'}')
-            ttl = client.time_to_end()
-            print(ttl, client.get_info())
+            for p in pokemons:
+                # for id,node in g.get_graph().get_all_v().items():
+                #     for edge in g.get_graph().all_out_edges_of_node(id).items():
+                #         print(edge)
+                #         for id1,node1 in g.get_graph().get_all_v().items():
+                #             if(edge[0]==id1):
+                #                 print(node1)
+                #         # p.pos = SimpleNamespace(x=my_scale(
+                #         #     float(x), x=True), y=my_scale(float(y), y=True))
+                #                 if(OnEdge((node[0],node[1]),(node1[0],node1[1]),p.pos)==1):
+                #                     print("edge: ",edge," id, node",id,",",node)
+                #
+                #                     print(p.pos)
+
+
+                src_dest= game.on_which_edge(g.get_graph() ,p )
+                next_node=g.shortest_path(agent.src,src_dest[0])
+                next_step=next_node[1]
+                print(next_step,"----------")
+                print(next_step[1],"----------")
+                client.choose_next_edge(
+                     '{"agent_id":'+str(agent.id)+ ', "next_node_id":' +str(next_step[1])+ '}')
+                ttl = client.time_to_end()
+                print(ttl, client.get_info())
 
     client.move()
 # game over:

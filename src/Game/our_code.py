@@ -8,20 +8,14 @@ import sys
 from types import SimpleNamespace
 from client_python.client import Client
 import json
-from pygame import gfxdraw
 import pygame
 from pygame import *
-
-from src.Game.client_python.student_code import graph
-from src.Game.game_boy import GameBoy
 
 from poke_node import PokeNode
 from poke_trainer import PokeTrainer
 # from Graph.graph_algo import GraphAlgo
-from src.Game.Graph.graph_algo import GraphAlgo
-from Graph.node_class import Nodes
-from src.Game.Graph.graph_algo import Nodes
-from Graph.di_graph import DiGraph
+from src.Game.client_python.graph_algo import GraphAlgo
+from src.Game.client_python.di_graph import DiGraph
 
 
 # init pygame
