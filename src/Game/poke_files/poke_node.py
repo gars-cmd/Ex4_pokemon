@@ -24,7 +24,7 @@ class PokeNode:
         type = int(dict['Pokemon'].get('type'))
         posS:str = dict['Pokemon'].get('pos')
         posS = (posS.split(','))
-        pos = (float(posS[0]) , float(posS[0]) , float(posS[0]))
+        pos = (float(posS[0]) , float(posS[1]) , float(posS[2]))
         return PokeNode(value=value , type=type , pos=pos)
     
     

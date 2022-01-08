@@ -6,16 +6,18 @@ Very simple GUI example for python client to communicates with the server and "p
 
 import sys
 from types import SimpleNamespace
-from client_python.client import Client
+from client import Client
 import json
 import pygame
 from pygame import *
+from Graph import gui_graph
 
-from poke_node import PokeNode
-from poke_trainer import PokeTrainer
+from poke_files.poke_node import PokeNode
+from poke_files.poke_trainer import PokeTrainer
 # from Graph.graph_algo import GraphAlgo
-from src.Game.client_python.graph_algo import GraphAlgo
-from src.Game.client_python.di_graph import DiGraph
+from Graph.graph_algo import GraphAlgo
+from Graph.di_graph import DiGraph
+from poke_files.play import Play
 
 
 # init pygame
@@ -28,6 +30,7 @@ HOST = '127.0.0.1'
 pygame.init()
 
 screen = display.set_mode((WIDTH, HEIGHT), depth=32, flags=RESIZABLE)
+background = pygame.image.load("src\Game\media\safari_zone.gif")
 clock = pygame.time.Clock()
 pygame.font.init()
 
@@ -35,80 +38,12 @@ client = Client()
 client.start_connection(HOST, PORT)
 
 pokemons = client.get_pokemons()
-pokemons_obj = json.loads(pokemons, object_hook=lambda d: SimpleNamespace(**d))
-
-print(pokemons)
 
 graph_json = client.get_graph()
 
-# FONT = pygame.font.SysFont('Arial', 20, bold=True)
-# load the json string into SimpleNamespace Object
 GraphA = GraphAlgo()
 GraphA.load_from_json(graph_json)
-
-#  get data proportions
-# min_x = min(list(GraphA.diGraph.get_all_v), key=lambda n: n.pos[0]).pos[0]
-# min_y = min(list(GraphA.diGraph.get_all_v), key=lambda n: n.pos[1]).pos[1]
-# max_x = max(list(GraphA.diGraph.get_all_v), key=lambda n: n.pos[0]).pos[0]
-# max_y = max(list(GraphA.diGraph.get_all_v), key=lambda n: n.pos[1]).pos[1]
-MAXx = sys.float_info.min
-MAXy = sys.float_info.min
-MINy = sys.float_info.max
-MINx = sys.float_info.max
-
-def findRatio(graph:DiGraph):
-    
-    listNode = graph.get_all_v()
-    global MINx , MINy , MAXx , MAXy
-    for node in listNode:
-        curr = listNode[node]
-        
-        # if the node don't have coordinate 
-        if curr[0] == None or curr[1] == None:
-            continue
-        else:
-            # print(curr)
-            if curr[0] < MINx:
-                # global MINx
-                MINx = curr[0]
-            if curr[0] > MAXx:
-                # global MAXx
-                MAXx = curr[0]
-            if curr[1] < MINy:
-                # global MINy
-                MINy = curr[1]
-            if curr[1] > MAXy:
-                # global MAXy 
-                MAXy = curr[1]
-    
-# def scale(data, min_screen, max_screen, min_data, max_data):
-#     # """
-#     # get the scaled data with proportions min_data, max_data
-#     # relative to min and max screen dimentions
-#     # """
-#     return ((data - min_data) / (max_data-min_data)) * (max_screen - min_screen) + min_screen
-
-
-# # decorate scale with the correct values
-
-# def my_scale(data, x=False, y=False):
-#     if x:
-#         return scale(data, 50, screen.get_width() - 50, min_x, max_x)
-#     if y:
-#         return scale(data, 50, screen.get_height()-50, min_y, max_y)
-
-def scale(data , min_screen , max_screen , min_data , max_data):
-    data_ratio = ((data - min_data) / (max_data - min_data))
-    screen_ratio = ((max_screen - min_screen) + min_screen)
-    return (data_ratio * screen_ratio)
-
-def myScale(data , x=False , y=False):
-    if x:
-        return scale(data , 50 , screen.get_width()-30 , MINx , MAXx )+10
-    if y:
-        return scale(data , 50 , screen.get_height()-30 , MINy , MAXy)+10
-
-# radius = 15
+graph = GraphA
 
 client.add_agent("{\"id\":0}")
 # client.add_agent("{\"id\":1}")
@@ -128,12 +63,16 @@ mixer.music.play(-1)
 pokemon_dict = {}
 trainer_dict = {}
 while client.is_running() == 'true':
+    
+    screen.blit(background,(0,0))
+
     pygame.init()
     pokemons = json.loads(client.get_pokemons())
   
     for pokemon in pokemons['Pokemons']:
         new_poke = PokeNode.dict_to_poke(pokemon)
-        pokemon = new_poke
+        new_poke.id = Play.generate_id(pokemon_dict)
+        pokemon_dict[new_poke.id] = new_poke
     print(pokemons)
         
     agents = json.loads(client.get_agents())
@@ -150,36 +89,27 @@ while client.is_running() == 'true':
             pygame.quit()
             exit(0)
 
-     
+    # display all the things
+    gui_graph.draw_graph(screen,graph.get_graph())
+    gui_graph.draw_trainer(screen,trainer_dict)
+    gui_graph.draw_pokemon(screen,pokemon_dict)
     
-    # draw agents
-    for agent in trainer_dict.values():
-        agent:PokeTrainer
-        x = myScale(agent.pos[0],x=True)
-        y = myScale(agent.pos[1],y=True)
-        pygame.draw.circle(screen, Color(122, 61, 23),(x,y), 10)
-                           
-    # draw pokemons (note: should differ (GUI wise) between the up and the down pokemons (currently they are marked in the same way).
-    for p in pokemon_dict.values():
-        p:PokeNode
-        pygame.draw.circle(screen, Color(0, 255, 255), ((p.pos[0]) , (p.pos[1])), 10)
-
-    # update screen changes
     display.update()
-    GraphA.plot_graph()
-    # refresh rate
     clock.tick(60)
 
-    # choose next edge
-    for agent in agents:
-        if agent.dest == -1:
-
-            next_node = 2
-            client.choose_next_edge(
-                '{"agent_id":'+str(agent.id)+', "next_node_id":'+str(next_node)+'}')
+    Play.dispatch(graph,trainer_dict,pokemon_dict)
+    for trainer in trainer_dict.values():
+        trainer:PokeTrainer
+        if trainer.target[1] != -1:
+            client.choose_next_edge('{"agent_id":'+str(trainer.id)+ ', "next_node_id":' +str(trainer.path[1])+ '}')
             ttl = client.time_to_end()
             print(ttl, client.get_info())
-            print("---------------------")
-    
     client.move()
+
+
+    # update screen changes
+   
+    # refresh rate
+
+
 # game over:

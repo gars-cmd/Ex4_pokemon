@@ -2,20 +2,20 @@ import json
 from typing import Dict, List, Tuple
 import sys
 import math
-from pygame import math
-from src.Game.client_python.di_graph import DiGraph
-from src.Game.client_python.graph_algo import GraphAlgo
-from src.Game.poke_node import PokeNode
-from src.Game.poke_trainer import PokeTrainer
+import math
+from Graph.di_graph import DiGraph
+from Graph.graph_algo import GraphAlgo
+from poke_files.poke_node import PokeNode
+from poke_files.poke_trainer import PokeTrainer
 import random
-from src.Game.client_python.node_class import Nodes
-from src.Game.game_boy import GameBoy
+from Graph.node_class import Nodes
+from poke_files.game_boy import GameBoy
 
 
 class Play():
     def __init__(self) -> None:
         self.pokemon_dict:Dict[int , PokeNode]
-        self.graph = DiGraph()
+        self.graph = GraphAlgo()
         self.trainer_dict:Dict[int,PokeTrainer] = {}
         self.game_server:GameBoy = {}
 
@@ -39,15 +39,18 @@ class Play():
 
 
     # generate random id for the pokemon dictionnary 
-    def generate_id(self) -> int:
+    def generate_id(pokemon_dict:Dict) -> int:
         id =-1
-        id = random.randint(1,self.game_server.get_pokemons())
-        while(self.pokemon_dict[id]!=None):
-           id = random.randint(1,10000)
-        return id
+        id = random.randint(0,len(pokemon_dict)+1)
+        while(True):
+            try:
+                pokemon_dict[id]    
+                id = random.randint(1,10000)
+            except:
+                return id
 
     # reset the target of all the trainers
-    def reset_target(trainer_list):
+    def reset_target(trainer_list:List):
         for trainer in trainer_list:
             trainer:PokeTrainer
             trainer.target=(-1,-1)  
@@ -55,43 +58,45 @@ class Play():
 
 
     # set the target parameter for each trainer in the game
-    def dispatch(self):
-        temp_trainer_list:List = self.trainer_dict.values()
-        temp_pokemon_list:List = self.pokemon_dict.values()
+    def dispatch(graph:GraphAlgo,trainer_dict:Dict , pokemon_dict:Dict):
+        temp_trainer_list:List = list(trainer_dict.values())
+        
+        temp_pokemon_list:List = list(pokemon_dict.values())
 
         while( len(temp_pokemon_list)> 0 and len(temp_trainer_list)>0):
             # set for all the trainers the best ratio catch 
             for trainer in temp_trainer_list:
                 trainer:PokeTrainer
-                result= self.cost_value_pokemon(trainer, temp_pokemon_list)[0] , 
-                trainer.target = [result[0] , result[1]]
+                result= Play.cost_value_pokemon(graph,trainer, temp_pokemon_list)
+                trainer.target[0] = result[0]
+                trainer.target[1] = result[1]
             # we find the trainer with the best value/cost and 
             max =[-1 , -1]
             for trainer in temp_trainer_list:
-                if trainer.target[1] > min[1]:
+                if trainer.target[1] > max[1]:
                     max[0] = trainer.id
                     max[1] = trainer.target[0]
             # we remove the trainer with the best value after allocation and the best pokemon cause there is a trainer to catch him 
-            temp_trainer_list.remove(self.trainer_dict.get(max[0]))
-            temp_pokemon_list.remove(self.pokemon_dict.get(self.trainer_dict.get(max[0]).target[0]))
+            temp_trainer_list.remove(trainer_dict.get(max[0]))
+            temp_pokemon_list.remove(pokemon_dict.get(trainer_dict.get(max[0]).target[0]))
             # reset all the target of the remain trainers COULD  BE IMPROVE 
-            self.reset_target(temp_trainer_list)
+            Play.reset_target(temp_trainer_list)
 
             
 
 
     # find on which edge the pokemon is in case of bidirectional edge return of which of theme he is 
-    def on_which_edge(graph:DiGraph , pokemon:PokeNode) -> Tuple:
+    def on_which_edge(graph:GraphAlgo , pokemon:PokeNode) -> Tuple:
         ans = ()
-        for keyN , nodes in graph.NodesMap.items():
+        for keyN , nodes in graph.get_graph().NodesMap.items():
             nodes:Nodes
             for keyE , edge in nodes.me_to_other.items():
                 # get geometric distance of the edge 
-                a_b = Play.distance(nodes.pos , graph.NodesMap.get(keyE).pos)
+                a_b = Play.distance(nodes.pos , graph.get_graph().NodesMap.get(keyE).pos)
                 # get geometric distance from a to pokemon
                 a_k = Play.distance(nodes.pos , pokemon.pos)
                 # get geometric distance from b to pokemon
-                b_k = Play.distance(graph.NodesMap.get(keyE).pos , pokemon.pos)
+                b_k = Play.distance(graph.get_graph().NodesMap.get(keyE).pos , pokemon.pos)
                 # we check that the pokemon is between this edge
                 if a_k<a_b and b_k<a_b and (a_k+b_k < a_b+sys.float_info.epsilon) and (a_k+b_k > a_b-sys.float_info.epsilon):
                     #  we check if the pokemon is on the upside edge or downside edge in the case of bidirectional edge
@@ -119,15 +124,16 @@ class Play():
 
 
     # find the best ratio value/cost pokemon to catch (return a tuple with the id of the pokemon and the cost of the travel)
-    def cost_value_pokemon(self, agent:PokeTrainer , pokedex:List) -> Tuple:
+    def cost_value_pokemon( graph:GraphAlgo ,agent:PokeTrainer , pokedex:List) -> Tuple:
         ans = [None , float('inf')]
         for pokemon in pokedex:
             pokemon:PokeNode
             # find the edge where the pokemon lean on
-            pokeside = Play.on_which_edge(self.graph , pokemon=pokemon)
+            pokeside = Play.on_which_edge(graph , pokemon=pokemon)
             # find the path from the trainer to the src of the edge where the pokemon lean on
-            djisk = GraphAlgo.shortest_path(self.graph , agent.get_src , pokeside[0])
-            path_cost = self.graph.NodesMap.get(pokeside[0]).me_to_other[pokeside[1]] + djisk[0]
+            djisk = GraphAlgo.shortest_path(graph , agent.get_src() , pokeside[0])
+            misses_weight = graph.get_graph().NodesMap.get(pokeside[0]).me_to_other[pokeside[1]][1]
+            path_cost = misses_weight + djisk[0]
             if (path_cost/pokemon.get_value()) < ans[1]:
                 ans = [pokemon.id , pokemon.get_value()/path_cost]
                 # we also save the path to the 

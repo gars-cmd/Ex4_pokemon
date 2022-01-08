@@ -2,20 +2,21 @@
 from typing import Dict
 import pygame
 import math
-from pygame import Color
+from pygame import Color, draw
+from pygame import color
 from pygame import display
-from pygame.constants import RESIZABLE
+from pygame.constants import DOUBLEBUF, HWSURFACE, RESIZABLE, SCRAP_SELECTION, VIDEORESIZE
+from pygame.draw import line, rect
+from pygame.font import Font
 from pygame.time import Clock
-# from Graph.di_graph import DiGraph
-
+from Graph.di_graph import DiGraph
+import os
 import sys
-# from Graph.node_class import Nodes
+from Graph.node_class import Nodes
 from pygame import mixer
 
-from src.Game.client_python.di_graph import DiGraph
-from src.Game.client_python.node_class import Nodes
-from src.Game.poke_node import PokeNode
-from src.Game.poke_trainer import PokeTrainer
+from poke_files.poke_node import PokeNode
+from poke_files.poke_trainer import PokeTrainer
 
 
 
@@ -27,7 +28,13 @@ pygame.font.init()
 WIN = pygame.display.set_mode((1080,720) , flags=RESIZABLE)
 
 
+# add song
+# mixer.music.load("src\Game\media\song.wav")
+# mixer.music.play(-1)
 
+
+# add background
+# background = pygame.image.load("src\Game\media\safari_zone.gif")
 
 
 #the coordinate corners of the window
@@ -42,6 +49,8 @@ WHITE = (255, 255, 255)
 BLUE = (0 , 0 , 255)
 GREY = (128,128,128)
 BLACK = (0 , 0 , 0)
+RED = (255, 0, 0)
+VIOLET = (238,130,238)
 
 # title of the graph
 pygame.display.set_caption("Pokemon_Discover_Ariel")
@@ -54,11 +63,11 @@ def scale(data , min_screen , max_screen , min_data , max_data):
     screen_ratio = ((max_screen - min_screen) + min_screen)
     return (data_ratio * screen_ratio)
 
-def myScale(data , x=False , y=False):
+def myScale(screen , data , x=False , y=False):
     if x:
-        return scale(data , 50 , WIN.get_width()-30 , MINx , MAXx )+10
+        return scale(data , 50 , screen.get_width()-30 , MINx , MAXx )+10
     if y:
-        return scale(data , 50 , WIN.get_height()-30 , MINy , MAXy)+10
+        return scale(data , 50 , screen.get_height()-30 , MINy , MAXy)+10
 
 #find the extremum points 
 def findRatio(graph:DiGraph):
@@ -87,7 +96,7 @@ def findRatio(graph:DiGraph):
                 MAXy = curr[1]
     
 #  draw the line and the arrow to show the directed edge 
-def arrow(start , end , basis , height , color ):
+def arrow(screen,start , end , basis , height , color ):
     dx = float(end[0] - start[0])
     dy = float(end[1] - start[1])
     BASIS = float(math.sqrt(dx * dx + dy * dy))
@@ -104,10 +113,10 @@ def arrow(start , end , basis , height , color ):
     yn = xn * sin + yn * cos + start[1]
     xn = x 
     points = [(end[0] , end[1]) , (int(xm) , int(ym)) , (int (xn) , int(yn))] 
-    pygame.draw.line(WIN , color , start , end , width=2 )
-    pygame.draw.polygon(WIN , color , points)
+    pygame.draw.line(screen , color , start , end , width=2 )
+    pygame.draw.polygon(screen , color , points)
 
-def draw_graph(graph:DiGraph):
+def draw_graph(screen,graph:DiGraph):
 
         # print a graph 
         node_map = graph
@@ -123,15 +132,15 @@ def draw_graph(graph:DiGraph):
                 node[1] = (3/4)*MAXy
             
             # scale the coordinate of the node
-            x = myScale(node[0] ,x=True)
-            y = myScale(node[1] ,y=True)
+            x = myScale(screen,node[0] ,x=True)
+            y = myScale(screen,node[1] ,y=True)
 
             # add id near to the node 
             src_text = FONT.render(str(id) , True , BLACK )
-            WIN.blit(src_text , (x,y))
+            screen.blit(src_text , (x,y))
 
             # print(x,y)
-            point = pygame.draw.circle(WIN , BLACK , (x,y) , radius=7 )
+            point = pygame.draw.circle(screen , BLACK , (x,y) , radius=7 )
             
             # run over the node connected to this node by a directed edge
             for dest in node_map.NodesMap[id].me_to_other:
@@ -139,34 +148,46 @@ def draw_graph(graph:DiGraph):
                 curr = node_map.get_all_v()[dest]
             
                 # scale the coordinate of the target node
-                dest_x = myScale(curr[0] , x=True)
-                dest_y = myScale(curr[1] , y=True)
-                arrow((x,y) , (dest_x,dest_y) ,basis=14 , height=6 , color=BLUE )
+                dest_x = myScale(screen,curr[0] , x=True)
+                dest_y = myScale(screen,curr[1] , y=True)
+                arrow(screen,(x,y) , (dest_x,dest_y) ,basis=14 , height=6 , color=BLUE )
 
-def draw_pokemon(pokemon_dict:Dict):                    
+def draw_pokemon(screen,pokemon_dict:Dict):                    
     # draw pokemons (note: should differ (GUI wise) between the up and the down pokemons (currently they are marked in the same way).
     for p in pokemon_dict.values():
         p:PokeNode
-        pygame.draw.circle(WIN, Color(0, 255, 255), ((p.pos[0]),(p.pos[1])), 10)
+        x = myScale(screen,p.pos[0],x=True)
+        y = myScale(screen,p.pos[1],y=True)
+        pygame.draw.circle(screen, Color(RED), (x,y), 10)
 
-def draw_trainer(trainer_dict:Dict):
+def draw_trainer(screen,trainer_dict:Dict):
      # draw agents
     for agent in trainer_dict.values():
         agent:PokeTrainer
-        x = myScale(agent.pos[0] ,x=True)
-        y = myScale(agent.pos[1] ,y=True)
-        pygame.draw.circle(WIN, Color(122, 61, 23),(x,y), 10)
-
-
+        x = myScale(screen, agent.pos[0] ,x=True)
+        y = myScale(screen,agent.pos[1] ,y=True)
+        pygame.draw.circle(screen, Color(VIOLET),(x,y), 10)
 
 # window drawer
-def draw_window(graph:DiGraph):
+def draw_window(screen,graph:DiGraph):
+    pygame.init()
+
+    screen.blit(background,(0,0))
+    
+    pygame.display.update()
+    for event in pygame.event.get():
+        # allow to quit the GUI
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        # allow to resize the screen
+        elif event.type == VIDEORESIZE:
+            screen  = pygame.display.set_mode(event.dict['size'] , HWSURFACE | DOUBLEBUF | RESIZABLE)
 
     draw_graph(graph)
     display.update()
     Clock.tick(60)
 
-
-
-
+    
+       
+        
     
