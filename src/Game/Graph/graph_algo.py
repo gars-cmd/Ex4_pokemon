@@ -1,11 +1,11 @@
 import sys
 from typing import Dict, List, Tuple
-from Graph.GraphAlgoInterface import GraphAlgoInterface
-from Graph.GraphInterface import GraphInterface
-from Graph.di_graph import DiGraph
-from Graph.node_class import Nodes
+from src.Game.Graph.GraphAlgoInterface import GraphAlgoInterface
+from src.Game.Graph.GraphInterface import GraphInterface
+from src.Game.Graph.di_graph import DiGraph
+from src.Game.Graph.node_class import Nodes
 import json
-from Graph import gui_graph
+from src.Game.Graph import gui_graph
 
 
 class GraphAlgo(GraphAlgoInterface):
@@ -40,7 +40,7 @@ class GraphAlgo(GraphAlgoInterface):
             for edge in datas['Edges']:
                 self.diGraph.add_edge(edge['src'],edge['dest'],edge['w'])
 
-            f.close()
+            #f.close()
             return True
         except:
             return False

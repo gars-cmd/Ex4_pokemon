@@ -9,12 +9,15 @@ from pygame.constants import DOUBLEBUF, HWSURFACE, RESIZABLE, SCRAP_SELECTION, V
 from pygame.draw import line, rect
 from pygame.font import Font
 from pygame.time import Clock
-from Graph.di_graph import DiGraph
+# from Graph.di_graph import DiGraph
+
 import os
 import sys
-from Graph.node_class import Nodes
+# from Graph.node_class import Nodes
 from pygame import mixer
 
+from src.Game.Graph.di_graph import DiGraph
+from src.Game.Graph.node_class import Nodes
 from src.Game.poke_node import PokeNode
 from src.Game.poke_trainer import PokeTrainer
 
@@ -29,12 +32,12 @@ WIN = pygame.display.set_mode((1080,720) , flags=RESIZABLE)
 
 
 # add song
-mixer.music.load("src\Game\media\song.wav")
-mixer.music.play(-1)
+mixer.music.load("src/Game/media/song.wav")
+mixer.music.play()
 
 
 # add background
-background = pygame.image.load("src\Game\media\safari_zone.gif")
+background = pygame.image.load("src/Game/media/safari_zone.gif")
 
 
 #the coordinate corners of the window
@@ -171,19 +174,19 @@ def draw_window(graph:DiGraph):
     pygame.init()
 
     WIN.blit(background,(0,0))
-    
-    pygame.display.update()
-    for event in pygame.event.get():
-        # allow to quit the GUI
-        if event.type == pygame.QUIT:
-            pygame.quit()
-        # allow to resize the screen
-        elif event.type == VIDEORESIZE:
-            screen  = pygame.display.set_mode(event.dict['size'] , HWSURFACE | DOUBLEBUF | RESIZABLE)
+    while(1==1):
+        pygame.display.update()
+        for event in pygame.event.get():
+            # allow to quit the GUI
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            # allow to resize the screen
+            elif event.type == VIDEORESIZE:
+                screen  = pygame.display.set_mode(event.dict['size'] , HWSURFACE | DOUBLEBUF | RESIZABLE)
 
-    draw_graph(graph)
-    display.update()
-    Clock.tick(60)
+        draw_graph(graph)
+        display.update()
+        Clock.tick(60)
 
     
         

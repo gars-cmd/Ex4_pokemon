@@ -11,11 +11,16 @@ import json
 from pygame import gfxdraw
 import pygame
 from pygame import *
-from game_boy import GameBoy
+
+from src.Game.client_python.student_code import graph
+from src.Game.game_boy import GameBoy
+
 from poke_node import PokeNode
 from poke_trainer import PokeTrainer
-from Graph.graph_algo import GraphAlgo
+# from Graph.graph_algo import GraphAlgo
+from src.Game.Graph.graph_algo import GraphAlgo
 from Graph.node_class import Nodes
+from src.Game.Graph.graph_algo import Nodes
 from Graph.di_graph import DiGraph
 
 
@@ -123,6 +128,9 @@ client.start()
 The code below should be improved significantly:
 The GUI and the "algo" are mixed - refactoring using MVC design pattern is required.
 """
+mixer.music.load("src/Game/media/song.wav")
+mixer.music.play(-1)
+
 pokemon_dict = {}
 trainer_dict = {}
 while client.is_running() == 'true':
@@ -135,7 +143,7 @@ while client.is_running() == 'true':
     print(pokemons)
         
     agents = json.loads(client.get_agents())
-   
+
     for agent in agents['Agents']:
         new_agent = PokeTrainer.dict_to_trainer(agent)
         trainer_dict[new_agent.id] = new_agent
@@ -153,29 +161,31 @@ while client.is_running() == 'true':
     # draw agents
     for agent in trainer_dict.values():
         agent:PokeTrainer
-        x = myScale(agent.pos[0] ,x=True)
-        y = myScale(agent.pos[1] ,y=True)
+        x = myScale(agent.pos[0],x=True)
+        y = myScale(agent.pos[1],y=True)
         pygame.draw.circle(screen, Color(122, 61, 23),(x,y), 10)
                            
     # draw pokemons (note: should differ (GUI wise) between the up and the down pokemons (currently they are marked in the same way).
     for p in pokemon_dict.values():
         p:PokeNode
-        pygame.draw.circle(screen, Color(0, 255, 255), ((p.pos[0]),(p.pos[1])), 10)
+        pygame.draw.circle(screen, Color(0, 255, 255), ((p.pos[0]) , (p.pos[1])), 10)
 
     # update screen changes
     display.update()
-
+    GraphA.plot_graph()
     # refresh rate
     clock.tick(60)
-    GraphA.plot_graph()
-    # # choose next edge
-    # for agent in agents:
-    #     if agent.dest == -1:
-    #         next_node = (agent.src - 1) % len(graph.Nodes)
-    #         client.choose_next_edge(
-    #             '{"agent_id":'+str(agent.id)+', "next_node_id":'+str(next_node)+'}')
-    #         ttl = client.time_to_end()
-    #         print(ttl, client.get_info())
+
+    # choose next edge
+    for agent in agents:
+        if agent.dest == -1:
+
+            next_node = 2
+            client.choose_next_edge(
+                '{"agent_id":'+str(agent.id)+', "next_node_id":'+str(next_node)+'}')
+            ttl = client.time_to_end()
+            print(ttl, client.get_info())
+            print("---------------------")
     
-    # client.move()
+    client.move()
 # game over:
