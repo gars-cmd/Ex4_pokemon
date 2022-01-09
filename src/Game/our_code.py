@@ -1,7 +1,7 @@
 """
-@author AchiyaZigi
+@author Avidan & Gal 
 OOP - Ex4
-Very simple GUI example for python client to communicates with the server and "play the game!"
+Not Very simple GUI example for python client to communicates with the server and "catch them all!"
 """
 
 from os import waitpid
