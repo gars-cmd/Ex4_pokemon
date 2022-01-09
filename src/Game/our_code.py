@@ -109,7 +109,7 @@ while client.is_running() == 'true':
         new_poke.id = i
         i+=1
         pokemon_dict[new_poke.id] = new_poke
-    print(len(pokemon_dict))
+    # print(len(pokemon_dict))
         
     agents = json.loads(client.get_agents())
 
@@ -145,6 +145,8 @@ while client.is_running() == 'true':
     redbutton = button(RED , 200 , 50 , 100 , 40 , "STOP")
     gui_graph.redrawWindows(screen , redbutton)
     display.update()
+
+    # if our button clicked then we stop the game 
     for event in pygame.event.get():
         pos = pygame.mouse.get_pos()
         if event.type == MOUSEBUTTONDOWN:
@@ -152,6 +154,7 @@ while client.is_running() == 'true':
                 client.stop()
                 client.stop_connection()
 
+    # we allocate to all the trainer a pokemon  
     Play.dispatch(graph,trainer_dict,pokemon_dict)
     for trainer in trainer_dict.values():
         trainer:PokeTrainer
@@ -162,17 +165,3 @@ while client.is_running() == 'true':
             ttl = client.time_to_end()
             
             print(ttl, client.get_info())
-        # for trainer in trainer_dict.values():
-        #     trainer:PokeTrainer
-        #     if trainer.dest == -1:
-        # client.move()
-    
-    
-    # time.sleep(1)
-
-    # update screen changes
-   
-    # refresh rate
-
-
-# game over:

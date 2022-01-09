@@ -67,7 +67,7 @@ class Play():
         while( len(temp_pokemon_list)> 0 and len(temp_trainer_list)>0):
             # set for all the trainers the best ratio catch 
             for trainer in temp_trainer_list:
-                print ("trainer= ",trainer.id,"path=",trainer.path,"cost= ",trainer.target)
+                # print ("trainer= ",trainer.id,"path=",trainer.path,"cost= ",trainer.target)
                 # if len(trainer.path)>1 and trainer.path[0] == trainer.path[1]:
                 #     # print("here")
                 #     trainer.path = []
