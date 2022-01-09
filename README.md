@@ -69,7 +69,7 @@ The computer specification : 8GB Ram , Processor(Intel(R) Core(TM) i5-8265U CPU 
 
 
 ## video
-https://youtu.be/offNGf9Q0bA
+https://youtu.be/ZGKrDc6iUqE
 
 
 
