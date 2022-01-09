@@ -2,7 +2,7 @@
 from typing import Dict
 import pygame
 import math
-from pygame import Color, draw
+from pygame import Color, Rect, draw
 from pygame import color
 from pygame import display
 from pygame.constants import DOUBLEBUF, HWSURFACE, RESIZABLE, SCRAP_SELECTION, VIDEORESIZE
@@ -51,11 +51,12 @@ GREY = (128,128,128)
 BLACK = (0 , 0 , 0)
 RED = (255, 0, 0)
 VIOLET = (238,130,238)
+YELLOW =(255, 255, 0)
 
 # title of the graph
 pygame.display.set_caption("Pokemon_Discover_Ariel")
 
-FONT = pygame.font.SysFont("Ariel" , 42)
+FONT = pygame.font.SysFont("Ariel" , 32)
 
 
 def scale(data , min_screen , max_screen , min_data , max_data):
@@ -158,7 +159,23 @@ def draw_pokemon(screen,pokemon_dict:Dict):
         p:PokeNode
         x = myScale(screen,p.pos[0],x=True)
         y = myScale(screen,p.pos[1],y=True)
-        pygame.draw.circle(screen, Color(RED), (x,y), 10)
+        pygame.draw.circle(screen, Color(YELLOW), (x,y), 10)
+        if p.id == 0%4:
+            pikachu = pygame.image.load("src\Game\media\pikachu.png")
+            pikachu = pygame.transform.scale(pikachu,(30,50))
+            screen.blit(pikachu , (x-10 , y-10))
+        elif p.id == 1%4:
+            carapuce = pygame.image.load("src\Game\media\carapuce.png")
+            carapuce = pygame.transform.scale(carapuce,(30,50))
+            screen.blit(carapuce , (x-10 , y-10))
+        elif p.id ==2%4:
+            bulbizar = pygame.image.load("src\Game\media\pulbizar.png")
+            bulbizar = pygame.transform.scale(bulbizar,(30,50))
+            screen.blit(bulbizar , (x-10 , y-10))
+        else:
+            spectrum = pygame.image.load("src\Game\media\spectrum.png")
+            spectrum = pygame.transform.scale(spectrum,(30,50))
+            screen.blit(spectrum , (x-10 , y-10))
 
 def draw_trainer(screen,trainer_dict:Dict):
      # draw agents
@@ -166,7 +183,12 @@ def draw_trainer(screen,trainer_dict:Dict):
         agent:PokeTrainer
         x = myScale(screen, agent.pos[0] ,x=True)
         y = myScale(screen,agent.pos[1] ,y=True)
-        pygame.draw.circle(screen, Color(VIOLET),(x,y), 10)
+        
+        pygame.draw.circle(screen, Color(RED),(x,y), 10)
+        ash = pygame.image.load("src\Game\media\sacha.png")
+        ash = pygame.transform.scale(ash,(40,80))
+        screen.blit(ash,(x-10,y-10))
+        
 
 # window drawer
 def draw_window(screen,graph:DiGraph):
@@ -187,7 +209,63 @@ def draw_window(screen,graph:DiGraph):
     display.update()
     Clock.tick(60)
 
+# draw the data_info
+def print_data(screen ,moves , grade , remain_time ) :
+    # draw the moves
+    font = pygame.font.SysFont("Alfa Slab One" , 24 , True , False  )
+    moves_txt = 'Moves : ' + str(moves)
+    surface_moves = font.render(moves_txt , True , BLACK)
+    moves_rec = pygame.Rect(0 ,0 , 130 , 32)
+    pygame.draw.rect(screen , WHITE , Rect(2,2,174,34))
+    screen.blit(surface_moves,(15, 15) )
+    pygame.draw.rect(screen , RED , Rect(0,0,180,40) , 4)
+ 
     
-       
+
+# draw the grades
+    grade_txt = 'Grade : ' + str(grade)
+    surface_grades = font.render(grade_txt , True , BLACK)
+    grade_rec = pygame.Rect(0 ,34 , 130 , 64)
+    pygame.draw.rect(screen , WHITE , Rect(2,42,174,34))
+    screen.blit(surface_grades, (10, 50))
+    pygame.draw.rect(screen , RED , Rect(0,40,180,40) , 4)
+
+
+# draw the remain time
+    time_txt = 'Remain time : ' + str(remain_time)
+    surface_time = font.render(time_txt , True , BLACK)
+    time_rec = pygame.Rect(0 ,64 , 130 , 86)
+    pygame.draw.rect(screen , WHITE , Rect(182,2,174,34))
+    screen.blit(surface_time,(190, 15))
+    pygame.draw.rect(screen , RED , Rect(180,0,180,40) , 4)
+
+class button():
+    def __init__(self , color ,x , y , width , height , text ='') -> None:
+        self.color = color
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+
+    def draw(self , screen , outline = None):
+        if outline:
+            pygame.draw.rect(screen , self.color , (self.x-2 , self.y-2 ,self.width+4 , self.height+4),0)
+        pygame.draw.rect(screen , self.color , (self.x , self.y , self.width , self.height), 0)
+
+        if self.text != '':
+            font = pygame.font.SysFont('Impact', 30)
+            text = font.render(self.text , 1 , (0,0,0))
+            screen.blit(text , (210 , 55))
         
-    
+    def isOver(self,pos):
+        if pos[0] > self.x and pos[0] < self.x + self.width:
+            if pos[1] > self.y and pos[1] < self.y + self.height:
+                return True
+        return False
+
+def redrawWindows(screen, button):
+    button.draw(screen , (0,0,0))
+
+
+

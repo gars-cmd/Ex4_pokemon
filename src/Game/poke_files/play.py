@@ -53,7 +53,8 @@ class Play():
     def reset_target(trainer_list:List):
         for trainer in trainer_list:
             trainer:PokeTrainer
-            trainer.target=(-1,-1)  
+            trainer.target=[-1,-1]
+            trainer.path = [] 
 
 
 
@@ -66,21 +67,31 @@ class Play():
         while( len(temp_pokemon_list)> 0 and len(temp_trainer_list)>0):
             # set for all the trainers the best ratio catch 
             for trainer in temp_trainer_list:
+                print ("trainer= ",trainer.id,"path=",trainer.path,"cost= ",trainer.target)
+                # if len(trainer.path)>1 and trainer.path[0] == trainer.path[1]:
+                #     # print("here")
+                #     trainer.path = []
+                #     trainer.target = [-1,-1]
+                # print(len(trainer.path))
+                # print("test",trainer.path , " cost =",trainer.target)
                 trainer:PokeTrainer
                 result= Play.cost_value_pokemon(graph,trainer, temp_pokemon_list)
+                # print(type(trainer.target))
                 trainer.target[0] = result[0]
                 trainer.target[1] = result[1]
             # we find the trainer with the best value/cost and 
             max =[-1 , -1]
-            for trainer in temp_trainer_list:
-                if trainer.target[1] > max[1]:
-                    max[0] = trainer.id
-                    max[1] = trainer.target[0]
+            if len(temp_trainer_list)>0:
+                for trainer in temp_trainer_list:
+                    if trainer.target[1] > max[1]:
+                        max[0] = trainer.id
+                        max[1] = trainer.target[0]
             # we remove the trainer with the best value after allocation and the best pokemon cause there is a trainer to catch him 
-            temp_trainer_list.remove(trainer_dict.get(max[0]))
-            temp_pokemon_list.remove(pokemon_dict.get(trainer_dict.get(max[0]).target[0]))
+            # print("the best next path  = ",max[0],"->",trainer_dict[max[0]].path)
+                temp_trainer_list.remove(trainer_dict.get(max[0]))
+                temp_pokemon_list.remove(pokemon_dict.get(trainer_dict.get(max[0]).target[0]))
             # reset all the target of the remain trainers COULD  BE IMPROVE 
-            Play.reset_target(temp_trainer_list)
+                Play.reset_target(temp_trainer_list)
 
             
 
@@ -130,15 +141,21 @@ class Play():
             pokemon:PokeNode
             # find the edge where the pokemon lean on
             pokeside = Play.on_which_edge(graph , pokemon=pokemon)
+            misses_weight = 0
+            
+            if agent.get_src() == pokeside[0]:
+                djisk = GraphAlgo.shortest_path(graph , agent.get_src() , pokeside[1])
             # find the path from the trainer to the src of the edge where the pokemon lean on
-            djisk = GraphAlgo.shortest_path(graph , agent.get_src() , pokeside[0])
-            misses_weight = graph.get_graph().NodesMap.get(pokeside[0]).me_to_other[pokeside[1]][1]
+            else:
+                djisk = GraphAlgo.shortest_path(graph , agent.get_src() , pokeside[0])
+                misses_weight = graph.get_graph().NodesMap.get(pokeside[0]).me_to_other[pokeside[1]][1]
             path_cost = misses_weight + djisk[0]
             if (path_cost/pokemon.get_value()) < ans[1]:
-                ans = [pokemon.id , pokemon.get_value()/path_cost]
+                ans = [pokemon.id , path_cost/pokemon.get_value()]
                 # we also save the path to the 
                 agent.path = djisk[1]
                 agent.path.append(pokeside[1])
+                agent.path.pop(0)
         return (ans[0] , ans[1])
 
 

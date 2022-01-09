@@ -193,8 +193,7 @@ while client.is_running() == 'true':
                 next_step=next_node[1]
                 print(next_step,"----------")
                 print(next_step[1],"----------")
-                client.choose_next_edge(
-                     '{"agent_id":'+str(agent.id)+ ', "next_node_id":' +str(next_step[1])+ '}')
+                client.choose_next_edge('{"agent_id":'+str(agent.id)+', "next_node_id":'+str(next_step[1])+ '}')
                 ttl = client.time_to_end()
                 print(ttl, client.get_info())
 

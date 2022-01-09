@@ -45,15 +45,15 @@ class GameBoy:
     
     # convert from dictionary to Game
     def dict_to_game(dict:Dict)  :
-        pokemons = int(dict.get("pokemons"))
-        is_logged_in = bool(dict.get("is_logged_in"))
-        moves = int(dict.get("moves"))
-        grade = int(dict.get("grade"))
-        game_level = int(dict.get("game_level"))
-        max_user_level = int(dict.get("max_user_level"))
-        id = int(dict.get("id"))
-        graph = dict.get("graph")
-        agents =  int(dict.get("agents"))
+        pokemons = int(dict['GameServer'].get("pokemons"))
+        is_logged_in = bool(dict['GameServer'].get("is_logged_in"))
+        moves = int(dict['GameServer'].get("moves"))
+        grade = int(dict['GameServer'].get("grade"))
+        game_level = int(dict['GameServer'].get("game_level"))
+        max_user_level = int(dict['GameServer'].get("max_user_level"))
+        id = int(dict['GameServer'].get("id"))
+        graph = dict['GameServer'].get("graph")
+        agents =  int(dict['GameServer'].get("agents"))
         return GameBoy(pokemons=pokemons , is_logged_in=is_logged_in , moves=moves , grade=grade , game_level=game_level , max_user_level=max_user_level , id=id , graph=graph , agents=agents)
 
         
