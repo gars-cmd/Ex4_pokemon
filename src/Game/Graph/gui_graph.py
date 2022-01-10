@@ -161,19 +161,19 @@ def draw_pokemon(screen,pokemon_dict:Dict):
         y = myScale(screen,p.pos[1],y=True)
         pygame.draw.circle(screen, Color(YELLOW), (x,y), 10)
         if p.id == 0%4:
-            pikachu = pygame.image.load("src\Game\media\pikachu.png")
+            pikachu = pygame.image.load("media\pikachu.png")
             pikachu = pygame.transform.scale(pikachu,(30,50))
             screen.blit(pikachu , (x-10 , y-10))
         elif p.id == 1%4:
-            carapuce = pygame.image.load("src\Game\media\carapuce.png")
+            carapuce = pygame.image.load("media\carapuce.png")
             carapuce = pygame.transform.scale(carapuce,(30,50))
             screen.blit(carapuce , (x-10 , y-10))
         elif p.id ==2%4:
-            bulbizar = pygame.image.load("src\Game\media\pulbizar.png")
+            bulbizar = pygame.image.load("media\pulbizar.png")
             bulbizar = pygame.transform.scale(bulbizar,(30,50))
             screen.blit(bulbizar , (x-10 , y-10))
         else:
-            spectrum = pygame.image.load("src\Game\media\spectrum.png")
+            spectrum = pygame.image.load("media\spectrum.png")
             spectrum = pygame.transform.scale(spectrum,(30,50))
             screen.blit(spectrum , (x-10 , y-10))
 
@@ -185,7 +185,7 @@ def draw_trainer(screen,trainer_dict:Dict):
         y = myScale(screen,agent.pos[1] ,y=True)
         
         pygame.draw.circle(screen, Color(RED),(x,y), 10)
-        ash = pygame.image.load("src\Game\media\sacha.png")
+        ash = pygame.image.load("media\sacha.png")
         ash = pygame.transform.scale(ash,(40,80))
         screen.blit(ash,(x-10,y-10))
         
