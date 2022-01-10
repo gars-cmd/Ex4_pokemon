@@ -35,7 +35,7 @@ HOST = '127.0.0.1'
 pygame.init()
 
 screen = display.set_mode((WIDTH, HEIGHT), depth=32, flags=RESIZABLE)
-background = pygame.image.load("src\Game\media\safari_zone.gif")
+background = pygame.image.load("media\safari_zone.gif")
 clock = pygame.time.Clock()
 pygame.font.init()
 
@@ -85,7 +85,7 @@ client.start()
 The code below should be improved significantly:
 The GUI and the "algo" are mixed - refactoring using MVC design pattern is required.
 """
-mixer.music.load("src\Game\media\Pokémon Theme.wav")
+mixer.music.load("media\Pokémon Theme.wav")
 mixer.music.play(-1)
 
 
@@ -101,7 +101,7 @@ while client.is_running() == 'true':
 
     pygame.init()
     pokemons = json.loads(client.get_pokemons())
-    time.sleep(0.090)  
+    # time.sleep(0.090)  
     client.move()
     i =0
     for pokemon in pokemons['Pokemons']:
