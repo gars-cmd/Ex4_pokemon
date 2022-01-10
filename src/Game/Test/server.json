@@ -1,0 +1,13 @@
+{
+    "GameServer":{
+        "pokemons":1,
+        "is_logged_in":false,
+        "moves":1,
+        "grade":0,
+        "game_level":0,
+        "max_user_level":-1,
+        "id":0,
+        "graph":"data/A0",
+        "agents":1
+    }
+}
