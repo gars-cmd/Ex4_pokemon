@@ -3,7 +3,14 @@
 ## Theme
 Forth assignement of the OOP course , we need to implement a "pokemon" game where we communicate with a server that update and give us data about trainer and pokemons on a given graph
 We choose to implement this assgignement in python
+
 ## How to run
+To run the game :
+- 1. Download the file zip from the release 
+- 2. Extract all the files in the zip
+- 3. open a terminal/cmd from the directory and run <java -jar Ex4_Server_v0.0.jar x > where x is the number of the case you want to check [0-15] 
+- 4. open a terminal from src/Game/
+- 5. run python3 our_codes.py
 
 ## Structure 
 [![uml.jpg](https://i.postimg.cc/dQy5VG7G/uml.jpg)](https://postimg.cc/t793rZNg)
@@ -62,7 +69,7 @@ The computer specification : 8GB Ram , Processor(Intel(R) Core(TM) i5-8265U CPU 
 
 
 ## video
-https://youtu.be/offNGf9Q0bA
+https://youtu.be/ZGKrDc6iUqE
 
 
 
